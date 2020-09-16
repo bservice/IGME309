@@ -17,8 +17,8 @@ class Application
 	//MyMesh* m_pMesh = nullptr;
 	std::vector<MyMesh*> cubes;
 
-	bool left;
-	bool right;
+	bool leftMove;
+	bool rightMove;
 	String m_sProgrammer = "Brandon Service - brs7770@rit.edu";
 
 private:

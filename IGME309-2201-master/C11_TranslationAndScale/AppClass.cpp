@@ -10,8 +10,8 @@ void Application::InitVariables(void)
 		cubes.push_back(temp);
 		cubes[i]->GenerateCube(1.0f, C_BLACK);
 	}
-	left = false;
-	right = true;
+	leftMove = false;
+	rightMove = true;
 	//m_pMesh->GenerateCube(1.0f, C_BLACK);
 	//m_pMesh->GenerateSphere(1.0f, 5, C_WHITE);
 }
@@ -39,25 +39,25 @@ void Application::Display(void)
 	matrix4 m4Translate = glm::translate(IDENTITY_M4, vector3(value, 0.0f, 0.0f));
 	
 	//If statement to move it to the right, move back to left when reach limit
-	if(right)
+	if(rightMove)
 	{
 		value += 0.01f;
 
 		if (value >= 0.5f)
 		{
-			right = false;
-			left = true;
+			rightMove = false;
+			leftMove = true;
 		}
 	}
 
 	//If statement to move it to the left, move back to right when reach limit
-	if (left)
+	if (leftMove)
 	{
 		value -= 0.01f;
 		if (value <= -0.5f)
 		{
-			right = true;
-			left = false;
+			rightMove = true;
+			leftMove = false;
 		}
 	}
 
