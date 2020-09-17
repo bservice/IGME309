@@ -597,32 +597,27 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 	//Create the circlee for the first end of the sphere
 	GLfloat angle1 = 0.0f;
 	GLfloat angle2 = static_cast<GLfloat>(2 * PI) / a_nSubdivisions;
+	GLfloat angle3 = 0.0f;
+	GLfloat angle4 = static_cast<GLfloat>(PI) / a_nSubdivisions;
 
 	for (int i = 0; i < a_nSubdivisions; i++)
 	{
-		vector3 temp = vector3(cos(angle2) * sin(angle1) * a_fRadius, sin(angle2) * sin(angle1) * a_fRadius, cos(angle1) * a_fRadius);
+		//vector3 temp = vector3(cos(angle1) * a_fRadius, sin(angle1) * a_fRadius, 0.0f);
+		//Trying to use the parametric equation to get the sphere
+		//No idea if I'm even close
+		vector3 temp = vector3(cos(angle1) * sin(angle3) * a_fRadius, sin(angle1) * sin(angle3) * a_fRadius, cos(angle3) * a_fRadius);
 		angle1 += angle2;
+		angle3 += angle4;
 		points.push_back(temp);
-	}
-
-	//Add the triangles to physically create the sphere end
-	for (int i = 0; i < a_nSubdivisions; i++)
-	{
-		AddTri(vector3(0.0f, 0.0f, 0.0f), points[(i + 1) % a_nSubdivisions], points[i]);		
-	}
-
-	std::vector<vector3> sidePoints;
-
-	for (int i = 0; i < a_nSubdivisions; i++)
-	{
-		points[i] += a_fRadius;
-		sidePoints.push_back(points[i]);
+		
+		
 	}
 
 	for (int i = 0; i < a_nSubdivisions; i++)
 	{
-		AddQuad(sidePoints[(i + 1) % a_nSubdivisions], sidePoints[i], points[(i + 1) % a_nSubdivisions], points[i]);
+		AddQuad(-points[(i + 1) % a_nSubdivisions], points[i], points[(i + 1) % a_nSubdivisions], -points[i]);
 	}
+	
 	// -------------------------------
 
 	// Adding information about color
