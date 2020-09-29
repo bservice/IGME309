@@ -5,9 +5,9 @@ void Application::InitVariables(void)
 	//(I'm at [0,0,10], looking at [0,0,0] and up is the positive Y axis)
 	m_pCameraMngr->SetPositionTargetAndUpward(AXIS_Z * 10.0f, ZERO_V3, AXIS_Y);
 	
-	//init the mesh
-	m_pMesh = new MyMesh();
-	m_pMesh->GenerateCone(0.5f, 1.0f, 7, C_RED);
+	m_pModel = new Simplex::Model();
+
+	m_pModel->Load("Minecraft\\Steve.obj");
 }
 void Application::Update(void)
 {
@@ -19,40 +19,43 @@ void Application::Update(void)
 
 	//Is the first person camera active?
 	CameraRotation();
-}
-void Application::Display(void)
-{
-	// Clear the screen
-	ClearScreen();
 
-	matrix4 m4View = m_pCameraMngr->GetViewMatrix(); //view Matrix
-	matrix4 m4Projection = m_pCameraMngr->GetProjectionMatrix(); //Projection Matrix
-	
 	//Get a timer
 	static uint uClock = m_pSystem->GenClock();
 	float fTimer = m_pSystem->GetTimeSinceStart(uClock);
+	float fDeltaTime = m_pSystem->GetDeltaTime(uClock);
 
-	//calculate the current position
-	matrix4 m4Rotation = glm::rotate(IDENTITY_M4, glm::radians(fTimer * 60.0f), vector3(0.0f, 0.0f, 1.0f));
-	matrix4 m4Model;
-	//for (uint i = 0; i < 2500; ++i)
-		m4Model = m4Rotation * glm::translate(IDENTITY_M4, vector3(2.5f, 0.0f, 0.0f)) * glm::transpose(m4Rotation);
-	
 	/*
-	//extra part, how to rotate around a point (in this case the base of the cone)
-	matrix4 m4Translation = glm::translate(IDENTITY_M4, vector3(0.0f, 0.5f, 0.0f));
-	matrix4 m4TransInverse = glm::translate(IDENTITY_M4, vector3(0.0f, -0.5f, 0.0f));
-	m4Model = m4TransInverse * m4Rotation * m4Translation;
+	quaternion q1;
+	quaternion q2 = glm::angleAxis(180.0f, vector3(0.0f, 0.0f, 1.0f));	
+	float fPercentage = MapValue(fTimer, 0.0f, 2.5f, 0.0f, 1.0f);
+	quaternion qSLERP = glm::mix(q1, q2, fPercentage);
+	m_m4Steve = glm::toMat4(qSLERP);
 	*/
 
-	// render the object
-	m_pMesh->Render(m4Projection, m4View, m4Model);
-	
-	// draw a skybox
-	m_pMeshMngr->AddSkyboxToRenderList();
 
-	//draw the center of the world
-	m_pMeshMngr->AddSphereToRenderList(glm::scale(vector3(0.1f)), C_RED, RENDER_WIRE);
+	//Translate vector orientation into a matrix
+	/*
+	matrix4 m4OrientX = glm::rotate(IDENTITY_M4, m_v3Orientation.x, vector3(1.0f, 0.0f, 0.0f));
+	matrix4 m4OrientY = glm::rotate(IDENTITY_M4, m_v3Orientation.y, vector3(0.0f, 1.0f, 0.0f));
+	matrix4 m4OrientZ = glm::rotate(IDENTITY_M4, m_v3Orientation.z, vector3(0.0f, 0.0f, 1.0f));
+	
+
+	matrix4 m4Orientation = m4OrientX * m4OrientY * m4OrientZ;
+
+	m_m4Steve = glm::toMat4(m_qOrientation);*/
+		
+
+
+	//orientation using quaternions
+	m_m4Steve = glm::toMat4(m_qOrientation);
+	
+	
+	//Attach the model matric that takes me from the world coordinate system
+	m_pModel->SetModelMatrix(m_m4Steve);
+
+	//Send model to render list
+	m_pModel->AddToRenderList();
 
 	//print the time on the screen
 #pragma region Debugging Information
@@ -69,6 +72,16 @@ void Application::Display(void)
 
 	m_pMeshMngr->Print("Time: ");
 	m_pMeshMngr->PrintLine(std::to_string(fTimer), C_RED);
+}
+void Application::Display(void)
+{
+	// Clear the screen
+	ClearScreen();
+
+
+	// draw a skybox
+	m_pMeshMngr->AddSkyboxToRenderList();
+
 #pragma endregion
 		
 	//render list call
@@ -85,8 +98,7 @@ void Application::Display(void)
 }
 void Application::Release(void)
 {
-	//release the mesh
-	SafeDelete(m_pMesh);
+	SafeDelete(m_pModel);
 
 	//release GUI
 	ShutdownGUI();

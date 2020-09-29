@@ -117,6 +117,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "00_Minimal", "00_Minimal\00
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "13_TranslationScale", "13_TranslationScale\13_TranslationScale.vcxproj", "{F11C19B3-C4B2-475A-88C3-BAB966A19013}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "14_Quaternions", "14_Quaternions\14_Quaternions.vcxproj", "{D49A1BED-AB45-45EE-8043-854140892790}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -333,6 +335,10 @@ Global
 		{F11C19B3-C4B2-475A-88C3-BAB966A19013}.Debug|x86.Build.0 = Debug|Win32
 		{F11C19B3-C4B2-475A-88C3-BAB966A19013}.Release|x86.ActiveCfg = Release|Win32
 		{F11C19B3-C4B2-475A-88C3-BAB966A19013}.Release|x86.Build.0 = Release|Win32
+		{D49A1BED-AB45-45EE-8043-854140892790}.Debug|x86.ActiveCfg = Debug|Win32
+		{D49A1BED-AB45-45EE-8043-854140892790}.Debug|x86.Build.0 = Debug|Win32
+		{D49A1BED-AB45-45EE-8043-854140892790}.Release|x86.ActiveCfg = Release|Win32
+		{D49A1BED-AB45-45EE-8043-854140892790}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -388,6 +394,7 @@ Global
 		{44D2C07B-798D-461B-9019-DFB240593888} = {EE0E027C-366F-4685-94D5-0EA5F6870B1B}
 		{822E40D2-80A1-46EB-AD93-EC28C4F145ED} = {78C06654-E155-40A8-97F7-7BA1E50977C5}
 		{F11C19B3-C4B2-475A-88C3-BAB966A19013} = {69E172C4-C41E-49E1-80A7-9F011CA76C8B}
+		{D49A1BED-AB45-45EE-8043-854140892790} = {69E172C4-C41E-49E1-80A7-9F011CA76C8B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A36545A6-DAAA-4856-BDB7-57C29F88BC6B}
