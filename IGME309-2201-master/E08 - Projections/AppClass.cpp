@@ -54,21 +54,39 @@ void Application::Display(void)
 		break;
 	case 2:
 		m_pCamera->ResetCamera();
+		m_pCamera->SetPerspective(false);
+		//m_pCamera->SetPositionTargetAndUpward(vector3(10.0f, 0.0f, 0.0f), vector3(0.0f, 0.0f, 0.0f), vector3(10.0f, 0.0f, 1.0f));
+		//m_pCamera->SetHorizontalPlanes(vector2(-100.0f, 100.0f));
+		//m_pCamera->SetVerticalPlanes(vector2(-100.0f, 100.0f));
 		break;
 	case 3:
 		m_pCamera->ResetCamera();
+		//Change the position and the upward vectors
+		m_pCamera->SetPositionTargetAndUpward(vector3(30.0f, 0.0f, 0.0f), vector3(0.0f, 0.0f, 0.0f), vector3(0.0f, 0.0f, -1.0f));
+		//m_pCamera->SetHorizontalPlanes(vector2(-100.0f, 100.0f));
+		//m_pCamera->SetVerticalPlanes(vector2(-100.0f, 100.0f));
 		break;
 	case 4:
 		m_pCamera->ResetCamera();
+		//Rotating everything around the z axis, basically mirroring from camera 1
+		m_pCamera->SetPosition(vector3(0.0f, 0.0f, -15.0f));
 		break;
 	case 5:
 		m_pCamera->ResetCamera();
+		//Same thing as camera 4 but don't allow the camera to see as close
+		m_pCamera->SetPosition(vector3(0.0f, 0.0f, -15.0f));
+		m_pCamera->SetNearFar(vector2(5.0f, 1000.0f));
 		break;
 	case 6:
 		m_pCamera->ResetCamera();
+		//Similar to camera 5, but instead of removing the close vision, cut off being able to see things far away
+		m_pCamera->SetPosition(vector3(0.0f, 0.0f, -15.0f));
+		m_pCamera->SetNearFar(vector2(0.001f, 10.0f));
 		break;
 	case 7:
 		m_pCamera->ResetCamera();
+		//Change the up vector so that it flips upside down
+		m_pCamera->SetUp(vector3(0.0f, -1.0f, 0.0f));
 		break;
 	}
 
