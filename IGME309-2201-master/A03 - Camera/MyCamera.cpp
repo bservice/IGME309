@@ -153,20 +153,64 @@ void Simplex::MyCamera::CalculateProjectionMatrix(void)
 void MyCamera::MoveForward(float a_fDistance)
 {
 	//The following is just an example and does not take in account the forward vector (AKA view vector)
-	m_v3Position += vector3(0.0f, 0.0f,-a_fDistance);
-	m_v3Target += vector3(0.0f, 0.0f, -a_fDistance);
-	m_v3Above += vector3(0.0f, 0.0f, -a_fDistance);	
+	//Normalizing the target and adding it to position and above then multiplying it by the given number
+	m_v3Position += glm::normalize(m_v3Target) * a_fDistance;
+	m_v3Above += glm::normalize(m_v3Target) * a_fDistance;
 }
 
 void MyCamera::MoveVertical(float a_fDistance)
 {
-	m_v3Position += vector3(0.0f, -a_fDistance, 0.0f);
-	m_v3Target += vector3(0.0f, -a_fDistance, 0.0f);
-	m_v3Above += vector3(0.0f, -a_fDistance, 0.0f);
+	//Similar to move forward but use the above minus the position to get the "forward" above vector
+	//Then apply it similarly to move forward
+	vector3 v3Up = glm::normalize(m_v3Above - m_v3Position);
+	m_v3Position += v3Up * a_fDistance;
+	m_v3Above += v3Up * a_fDistance;
 }
 void MyCamera::MoveSideways(float a_fDistance)
 {
-	m_v3Position += vector3(-a_fDistance, 0.0f, 0.0f);
-	m_v3Target += vector3(-a_fDistance, 0.0f, 0.0f);
-	m_v3Above += vector3(-a_fDistance, 0.0f, 0.0f);
+	//Repeating what I did for change pitch to get the left and right vectors
+	vector3 v3Forward = m_v3Target - m_v3Position;	
+	vector3 v3Above = m_v3Above - m_v3Position;
+	vector3 v3Axis = glm::cross(glm::normalize(v3Above), glm::normalize(v3Forward));
+
+	vector3 test = glm::normalize(m_v3Target - m_v3Position);
+	m_v3Position += v3Axis * a_fDistance;
+	m_v3Above += v3Axis * a_fDistance;
+}
+
+void MyCamera::ChangeYaw(float a_fDegree)
+{
+	if (a_fDegree != 0)
+	{
+		//Create the forward vector which is the target minus the current position
+		vector3 v3Forward = m_v3Target - m_v3Position;
+
+		//Create a quaternion to rotate the forward with
+		quaternion q1 = glm::angleAxis(a_fDegree, glm::normalize(m_v3Above - m_v3Position));
+
+		//Actually rotate the vector with that quaternion
+		m_v3Target = glm::rotate(q1, v3Forward);
+	}
+}
+
+void MyCamera::ChangePitch(float a_fDegree)
+{
+	if (a_fDegree != 0)
+	{
+		//Create the forward vector which is the target minus the current position
+		vector3 v3Forward = m_v3Target - m_v3Position;
+		//Get an above vector by treating it like it was the forward vector but this time instead of target use above
+		vector3 v3Above = m_v3Above - m_v3Position;
+
+		//Not exactly c++ or glm related but used this link to help understand cross product and how it finds the left or right
+		//https://answers.unity.com/questions/951452/calculate-rightleft-vectors-for-a-relative-vector.html
+		//Cross the above and forward
+		vector3 v3Axis = glm::cross(glm::normalize(v3Above), glm::normalize(v3Forward));
+
+		//Create a quaternion to rotate the forward with
+		quaternion q1 = glm::angleAxis(a_fDegree, glm::normalize(v3Axis));
+
+		//Actually rotate the vector with that quaternion
+		m_v3Target = glm::rotate(q1, v3Forward);
+	}
 }
