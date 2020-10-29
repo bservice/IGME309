@@ -287,6 +287,116 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 	(eSATResults::SAT_NONE has a value of 0)
 	*/
 
+	//Radii for this object and the passed in object
+	float rThis, rOther;
+	//Matricies to hold data
+	matrix3 R, AbsR;
+
+	//Putting the x, y, and z axes in an array for this object
+	vector3 axesThis[3];
+	axesThis[0] = this->GetModelMatrix()[0];
+	axesThis[1] = this->GetModelMatrix()[1];
+	axesThis[2] = this->GetModelMatrix()[2];
+
+	//Putting the x, y, and z axes in an array for the passed in object
+	vector3 axesOther[3];
+	axesOther[0] = a_pOther->GetModelMatrix()[0];
+	axesOther[1] = a_pOther->GetModelMatrix()[1];
+	axesOther[2] = a_pOther->GetModelMatrix()[2];
+
+	//Putting the centers into easier variables
+	vector3 centerThis = this->GetCenterGlobal();
+	vector3 centerOther = a_pOther->GetCenterGlobal();
+
+	//Putting the half widths into easier variables
+	vector3 halfThis = this->GetHalfWidth();
+	vector3 halfOther = a_pOther->GetHalfWidth();
+
+	//std::cout << axesThis[0].x << ", " << axesThis[0].y << ", " << axesThis[0].z << std::endl;
+
+	// Compute rotation matrix expressing b in a’s coordinate frame
+	for (int i = 0; i < 3; i++)
+		for (int j = 0; j < 3; j++)
+			R[i][j] = glm::dot(axesThis[i], axesOther[j]);
+
+	//Vector to hold the difference between the centers
+	vector3 t = centerOther - centerThis;
+
+	// Bring translation into a’s coordinate frame
+	t = vector3(glm::dot(t, axesThis[0]), glm::dot(t, axesThis[1]), glm::dot(t, axesThis[2]));
+
+	float epsilon = 0.000000000001f;
+
+	// Add in epsilon to account for math errors
+	for (int i = 0; i < 3; i++)
+		for (int j = 0; j < 3; j++)
+			AbsR[i][j] = glm::abs(R[i][j]) + epsilon; //Epsilon here
+
+
+	// Test axes L = this0, L = this1, L = this2
+	for (int i = 0; i < 3; i++) 
+	{
+		rThis = halfThis[i];
+		rOther = halfOther[0] * AbsR[i][0] + halfOther[1] * AbsR[i][1] + halfOther[2] * AbsR[i][2];
+		if (glm::abs(t[i]) > rThis + rOther) return 1;
+	}
+
+	// Test axes L = other0, L = other1, L = other2
+	for (int i = 0; i < 3; i++) {
+		rThis = halfThis[0] * AbsR[0][i] + halfThis[1] * AbsR[1][i] + halfThis[2] * AbsR[2][i];
+		rOther = halfOther[i];
+		if (glm::abs(t[0] * R[0][i] + t[1] * R[1][i] + t[2] * R[2][i]) > rThis + rOther) return 1;
+	}
+
+	//Starting all the different possible axis tests
+
+	// Test axis L = this0 x other0
+	rThis = halfThis[1] * AbsR[2][0] + halfThis[2] * AbsR[1][0];
+	rOther = halfOther[1] * AbsR[0][2] + halfOther[2] * AbsR[0][1];
+	if (glm::abs(t[2] * R[1][0] - t[1] * R[2][0]) > rThis + rOther) return 1;
+
+	// Test axis L = this0 x other1
+	rThis = halfThis[1] * AbsR[2][1] + halfThis[2] * AbsR[1][1];
+	rOther = halfOther[0] * AbsR[0][2] + halfOther[2] * AbsR[0][0];
+	if (glm::abs(t[2] * R[1][1] - t[1] * R[2][1]) > rThis + rOther) return 1;
+
+	// Test axis L = this0 x other2
+	rThis = halfThis[1] * AbsR[2][2] + halfThis[2] * AbsR[1][2];
+	rOther = halfOther[0] * AbsR[0][1] + halfOther[1] * AbsR[0][0];
+	if (glm::abs(t[2] * R[1][2] - t[1] * R[2][2]) > rThis + rOther) return 1;
+
+	// Test axis L = this1 x other0
+	rThis = halfThis[0] * AbsR[2][0] + halfThis[2] * AbsR[0][0];
+	rOther = halfOther[1] * AbsR[1][2] + halfOther[2] * AbsR[1][1];
+	if (glm::abs(t[0] * R[2][0] - t[2] * R[0][0]) > rThis + rOther) return 1;
+
+	// Test axis L = this1 x other1
+	rThis = halfThis[0] * AbsR[2][1] + halfThis[2] * AbsR[0][1];
+	rOther = halfOther[0] * AbsR[1][2] + halfOther[2] * AbsR[1][0];
+	if (glm::abs(t[0] * R[2][1] - t[2] * R[0][1]) > rThis + rOther) return 1;
+
+	// Test axis L = this1 x other2
+	rThis = halfThis[0] * AbsR[2][2] + halfThis[2] * AbsR[0][2];
+	rOther = halfOther[0] * AbsR[1][1] + halfOther[1] * AbsR[1][0];
+	if (glm::abs(t[0] * R[2][2] - t[2] * R[0][2]) > rThis + rOther) return 1;
+
+	// Test axis L = this2 x other0
+	rThis = halfThis[0] * AbsR[1][0] + halfThis[1] * AbsR[0][0];
+	rOther = halfOther[1] * AbsR[2][2] + halfOther[2] * AbsR[2][1];
+	if (glm::abs(t[1] * R[0][0] - t[0] * R[1][0]) > rThis + rOther) return 1;
+
+	// Test axis L = this2 x other1
+	rThis = halfThis[0] * AbsR[1][1] + halfThis[1] * AbsR[0][1];
+	rOther = halfOther[0] * AbsR[2][2] + halfOther[2] * AbsR[2][0];
+	if (glm::abs(t[1] * R[0][1] - t[0] * R[1][1]) > rThis + rOther) return 1;
+
+	// Test axis L = this2 x other2
+	rThis = halfThis[0] * AbsR[1][2] + halfThis[1] * AbsR[0][2];
+	rOther = halfOther[0] * AbsR[2][1] + halfOther[1] * AbsR[2][0];
+	if (glm::abs(t[1] * R[0][2] - t[0] * R[1][2]) > rThis + rOther) return 1;
+
+			
 	//there is no axis test that separates this two objects
 	return eSATResults::SAT_NONE;
 }
+	
